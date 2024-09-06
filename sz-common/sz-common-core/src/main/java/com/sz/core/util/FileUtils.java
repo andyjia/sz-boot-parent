@@ -37,6 +37,12 @@ public class FileUtils {
             response.setCharacterEncoding(StandardCharsets.UTF_8.toString()); // 设置响应字符编码
             setAttachmentResponseHeader(response, templateFileName);
 
+            // 获取文件大小
+            long contentLength = resource.contentLength();
+            if (contentLength != -1) {
+                response.setContentLengthLong(contentLength); // 设置Content-Length头
+            }
+
             try (InputStream inputStream = resource.getInputStream();
                  OutputStream outputStream = response.getOutputStream()) {
                 FileCopyUtils.copy(inputStream, outputStream);
