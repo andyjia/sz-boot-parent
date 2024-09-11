@@ -10,7 +10,7 @@ import com.sz.admin.system.pojo.po.SysFile;
 import com.sz.admin.system.pojo.po.table.SysFileTableDef;
 import com.sz.admin.system.service.SysFileService;
 import com.sz.core.common.entity.PageResult;
-import com.sz.core.util.FileUploadUtils;
+import com.sz.core.util.FileUtils;
 import com.sz.core.util.PageUtils;
 import com.sz.core.util.Utils;
 import com.sz.minio.MinioService;
@@ -20,6 +20,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -64,11 +66,18 @@ public class SysFileServiceImpl extends ServiceImpl<CommonFileMapper, SysFile> i
      * @return {@link String}
      */
     @Override
-    public String uploadFile(MultipartFile file, String type) {
+    public String uploadFile(MultipartFile file, String type, Boolean isAppendTime) {
         String fileUrl = "";
         try {
             // 文件名
-            String filename = type + "/" + FileUploadUtils.generateFileName(file.getOriginalFilename());
+            String filename;
+            if (isAppendTime) {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+                String localTime = sdf.format(new Date());
+                filename = type + "/" + localTime + "/" + FileUtils.generateFileName(file.getOriginalFilename());
+            } else {
+                filename = type + "/" + FileUtils.generateFileName(file.getOriginalFilename());
+            }
             // minio 上传文件
             ObjectWriteResponse objectWriteResponse = minioService.uploadFile(file, filename, file.getContentType());
             // 获取上传文件url

@@ -1,26 +1,30 @@
 package com.sz.admin.system.service.impl;
 
-import com.mybatisflex.spring.service.impl.ServiceImpl;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import com.sz.admin.system.service.SysTempFileService;
-import com.sz.admin.system.pojo.po.SysTempFile;
-import com.sz.admin.system.mapper.SysTempFileMapper;
 import com.mybatisflex.core.paginate.Page;
-import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.core.query.QueryChain;
-import com.sz.core.common.enums.CommonResponseEnum;
-import com.sz.core.util.PageUtils;
-import com.sz.core.util.BeanCopyUtils;
-import com.sz.core.util.Utils;
+import com.mybatisflex.core.query.QueryWrapper;
+import com.mybatisflex.spring.service.impl.ServiceImpl;
+import com.sz.admin.system.mapper.SysTempFileMapper;
+import com.sz.admin.system.pojo.dto.systempfile.SysTempFileCreateDTO;
+import com.sz.admin.system.pojo.dto.systempfile.SysTempFileListDTO;
+import com.sz.admin.system.pojo.dto.systempfile.SysTempFileUpdateDTO;
+import com.sz.admin.system.pojo.dto.systempfile.TempFileRecord;
+import com.sz.admin.system.pojo.po.SysTempFile;
+import com.sz.admin.system.pojo.vo.systempflie.SysTempFileVO;
+import com.sz.admin.system.service.SysTempFileService;
 import com.sz.core.common.entity.PageResult;
 import com.sz.core.common.entity.SelectIdsDTO;
+import com.sz.core.common.enums.CommonResponseEnum;
+import com.sz.core.util.BeanCopyUtils;
+import com.sz.core.util.PageUtils;
+import com.sz.core.util.Utils;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
 import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import com.sz.admin.system.pojo.dto.systempfile.SysTempFileCreateDTO;
-import com.sz.admin.system.pojo.dto.systempfile.SysTempFileUpdateDTO;
-import com.sz.admin.system.pojo.dto.systempfile.SysTempFileListDTO;
-import com.sz.admin.system.pojo.vo.systempflie.SysTempFileVO;
 
 /**
  * <p>
@@ -34,8 +38,13 @@ import com.sz.admin.system.pojo.vo.systempflie.SysTempFileVO;
 @RequiredArgsConstructor
 public class SysTempFileServiceImpl extends ServiceImpl<SysTempFileMapper, SysTempFile> implements SysTempFileService {
     @Override
-    public void create(SysTempFileCreateDTO dto){
+    public void create(SysTempFileCreateDTO dto) {
         SysTempFile sysTempFile = BeanCopyUtils.copy(dto, SysTempFile.class);
+        sysTempFile.setExt(getExt(dto.getUrl()));
+        sysTempFile.setPath(getPath(dto.getUrl()));
+        TempFileRecord record = TempFileRecord.builder().url(dto.getUrl()).time(LocalDateTime.now()).build();
+        sysTempFile.setHistory(List.of(record));
+
         long count;
         // 唯一性校验
         count = QueryChain.of(SysTempFile.class).eq(SysTempFile::getPermissions, dto.getPermissions()).count();
@@ -44,12 +53,24 @@ public class SysTempFileServiceImpl extends ServiceImpl<SysTempFileMapper, SysTe
     }
 
     @Override
-    public void update(SysTempFileUpdateDTO dto){
+    public void update(SysTempFileUpdateDTO dto) {
         SysTempFile sysTempFile = BeanCopyUtils.copy(dto, SysTempFile.class);
+        sysTempFile.setExt(getExt(dto.getUrl()));
+        sysTempFile.setPath(getPath(dto.getUrl()));
+        TempFileRecord record = TempFileRecord.builder().url(dto.getUrl()).time(LocalDateTime.now()).build();
+        SysTempFile detail = getById(dto.getId());
+        if (!detail.getUrl().equals(dto.getUrl())) {
+            List<TempFileRecord> history = detail.getHistory();
+            if (history == null) {
+                history = new ArrayList<>();
+            }
+            history.add(record);
+            sysTempFile.setHistory(history);
+        }
         QueryWrapper wrapper;
         // id有效性校验
         wrapper = QueryWrapper.create()
-            .eq(SysTempFile::getId, dto.getId());
+                .eq(SysTempFile::getId, dto.getId());
         CommonResponseEnum.INVALID_ID.assertTrue(count(wrapper) <= 0);
 
         // 唯一性校验
@@ -60,24 +81,24 @@ public class SysTempFileServiceImpl extends ServiceImpl<SysTempFileMapper, SysTe
     }
 
     @Override
-    public PageResult<SysTempFileVO> page(SysTempFileListDTO dto){
+    public PageResult<SysTempFileVO> page(SysTempFileListDTO dto) {
         Page<SysTempFileVO> page = pageAs(PageUtils.getPage(dto), buildQueryWrapper(dto), SysTempFileVO.class);
         return PageUtils.getPageResult(page);
     }
 
     @Override
-    public List<SysTempFileVO> list(SysTempFileListDTO dto){
+    public List<SysTempFileVO> list(SysTempFileListDTO dto) {
         return listAs(buildQueryWrapper(dto), SysTempFileVO.class);
     }
 
     @Override
-    public void remove(SelectIdsDTO dto){
+    public void remove(SelectIdsDTO dto) {
         CommonResponseEnum.INVALID_ID.assertTrue(dto.getIds().isEmpty());
         removeByIds(dto.getIds());
     }
 
     @Override
-    public SysTempFileVO detail(Object id){
+    public SysTempFileVO detail(Object id) {
         SysTempFile sysTempFile = getById((Serializable) id);
         CommonResponseEnum.INVALID_ID.assertNull(sysTempFile);
         return BeanCopyUtils.copy(sysTempFile, SysTempFileVO.class);
@@ -93,4 +114,24 @@ public class SysTempFileServiceImpl extends ServiceImpl<SysTempFileMapper, SysTe
         }
         return wrapper;
     }
+
+    private static String getExt(String url) {
+        if (Utils.isNotNull(url)) {
+            String fileName = url.substring(url.lastIndexOf('/') + 1);
+            return fileName.substring(fileName.lastIndexOf(".") + 1);
+        } else {
+            return "";
+        }
+
+    }
+
+    public static String getPath(String url) {
+        try {
+            java.net.URL parsedUrl = new java.net.URL(url);
+            return parsedUrl.getPath();
+        } catch (java.net.MalformedURLException e) {
+            return "";
+        }
+    }
+
 }

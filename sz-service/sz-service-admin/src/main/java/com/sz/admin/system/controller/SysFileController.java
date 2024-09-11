@@ -21,7 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
  * @author sz
  * @since 2023-08-31
  */
-@Tag(name =  "系统公共文件管理")
+@Tag(name = "系统公共文件管理")
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/sys-file")
@@ -38,8 +38,8 @@ public class SysFileController {
     @SaIgnore
     @Operation(summary = "上传文件")
     @PostMapping("/upload")
-    public ApiResult upload(@RequestParam MultipartFile file, @RequestParam(value = "type") String type) {
-        return ApiResult.success(sysFileService.uploadFile(file, type));
+    public ApiResult<String> upload(@RequestParam MultipartFile file, @RequestParam(value = "type") String type, @RequestParam(value = "isAppendTime") Boolean isAppendTime) {
+        return ApiResult.success(sysFileService.uploadFile(file, type, isAppendTime));
     }
 
 }

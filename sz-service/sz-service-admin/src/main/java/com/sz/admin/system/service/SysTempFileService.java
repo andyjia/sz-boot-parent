@@ -9,6 +9,7 @@ import com.sz.admin.system.pojo.dto.systempfile.SysTempFileCreateDTO;
 import com.sz.admin.system.pojo.dto.systempfile.SysTempFileUpdateDTO;
 import com.sz.admin.system.pojo.dto.systempfile.SysTempFileListDTO;
 import com.sz.admin.system.pojo.vo.systempflie.SysTempFileVO;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * <p>
@@ -31,7 +32,5 @@ public interface SysTempFileService extends IService<SysTempFile> {
     void remove(SelectIdsDTO dto);
 
     SysTempFileVO detail(Object id);
-
-
 
 }

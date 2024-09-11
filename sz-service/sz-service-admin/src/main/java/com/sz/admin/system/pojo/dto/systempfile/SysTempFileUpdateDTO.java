@@ -24,13 +24,10 @@ public class SysTempFileUpdateDTO {
     @Schema(description =  "标识")
     private String permissions;
 
-    @Schema(description =  "扩展类型")
-    private String ext;
-
-    @Schema(description =  "文件路径")
-    private String path;
-
     @Schema(description =  "文件地址")
     private String url;
+
+    @Schema(description =  "备注")
+    private String remark;
 
 }

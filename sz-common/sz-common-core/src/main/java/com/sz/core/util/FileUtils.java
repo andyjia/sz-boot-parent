@@ -8,13 +8,18 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.MediaType;
 import org.springframework.util.FileCopyUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriUtils;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.UUID;
 
 /**
  * @ClassName FileUtils
@@ -80,6 +85,7 @@ public class FileUtils {
 
     /**
      * 检查磁盘路径是否存在
+     *
      * @param path
      * @return
      */
@@ -90,4 +96,17 @@ public class FileUtils {
         Path pathObj = Paths.get(path);
         return Files.exists(pathObj) && Files.isDirectory(pathObj);
     }
+
+    /**
+     * 生成文件名
+     *
+     * @param originalFilename 原始文件名
+     * @return {@link String}
+     */
+    public static String generateFileName(String originalFilename) {
+        String extension = StringUtils.getFilenameExtension(originalFilename);
+        String fileName = UUID.randomUUID().toString();
+        return fileName + "." + extension;
+    }
+
 }

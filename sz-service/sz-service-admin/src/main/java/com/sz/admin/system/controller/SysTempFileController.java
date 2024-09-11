@@ -1,20 +1,22 @@
 package com.sz.admin.system.controller;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
+import cn.dev33.satoken.annotation.SaIgnore;
+import com.sz.admin.system.pojo.dto.systempfile.SysTempFileCreateDTO;
+import com.sz.admin.system.pojo.dto.systempfile.SysTempFileListDTO;
+import com.sz.admin.system.pojo.dto.systempfile.SysTempFileUpdateDTO;
+import com.sz.admin.system.pojo.vo.systempflie.SysTempFileVO;
+import com.sz.admin.system.service.SysTempFileService;
+import com.sz.core.common.constant.GlobalConstant;
+import com.sz.core.common.entity.ApiPageResult;
+import com.sz.core.common.entity.ApiResult;
+import com.sz.core.common.entity.PageResult;
+import com.sz.core.common.entity.SelectIdsDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import cn.dev33.satoken.annotation.SaCheckPermission;
 import org.springframework.web.bind.annotation.*;
-import com.sz.core.common.entity.ApiPageResult;
-import com.sz.core.common.entity.ApiResult;
-import com.sz.core.common.constant.GlobalConstant;
-import com.sz.core.common.entity.PageResult;
-import com.sz.core.common.entity.SelectIdsDTO;
-import com.sz.admin.system.service.SysTempFileService;
-import com.sz.admin.system.pojo.dto.systempfile.SysTempFileCreateDTO;
-import com.sz.admin.system.pojo.dto.systempfile.SysTempFileUpdateDTO;
-import com.sz.admin.system.pojo.dto.systempfile.SysTempFileListDTO;
-import com.sz.admin.system.pojo.vo.systempflie.SysTempFileVO;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * <p>
@@ -24,11 +26,11 @@ import com.sz.admin.system.pojo.vo.systempflie.SysTempFileVO;
  * @author sz-admin
  * @since 2024-09-05
  */
-@Tag(name =  "模版文件表")
+@Tag(name = "模版文件表")
 @RestController
 @RequestMapping("sys-temp-file")
 @RequiredArgsConstructor
-public class SysTempFileController  {
+public class SysTempFileController {
 
     private final SysTempFileService sysTempFileService;
 
@@ -69,6 +71,4 @@ public class SysTempFileController  {
     public ApiResult<SysTempFileVO> detail(@PathVariable Object id) {
         return ApiResult.success(sysTempFileService.detail(id));
     }
-
-
 }

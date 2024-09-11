@@ -33,5 +33,5 @@ public interface SysFileService extends IService<SysFile> {
      * @param file 文件
      * @return {@link ApiResult}
      */
-    String uploadFile(MultipartFile file, String type);
+    String uploadFile(MultipartFile file, String type, Boolean isAppendTime);
 }
