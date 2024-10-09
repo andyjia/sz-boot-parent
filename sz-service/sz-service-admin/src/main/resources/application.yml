@@ -56,3 +56,10 @@ sz:
     mini:
       app-id: your_app_id
       app-secret: your_app_secret
+# 阿里云相关配置
+aliyun:
+  oss:
+    endpoint: your-oss-endpoint
+    access-key-id: your-access-key-id
+    access-key-secret: your-access-key-secret
+    bucket-name: your-bucket-name

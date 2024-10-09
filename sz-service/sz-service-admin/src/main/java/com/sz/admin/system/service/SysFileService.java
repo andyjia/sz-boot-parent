@@ -34,4 +34,13 @@ public interface SysFileService extends IService<SysFile> {
      * @return {@link ApiResult}
      */
     String uploadFile(MultipartFile file, String type);
+
+
+    /**
+     * 上传文件到阿里云
+     *
+     * @param file 文件
+     * @return {@link ApiResult}
+     */
+    String uploadFileToAli(MultipartFile file, String type);
 }

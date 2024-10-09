@@ -1,6 +1,9 @@
 package com.sz.admin.system.service.impl;
 
 
+import com.aliyun.oss.OSS;
+import com.aliyun.oss.OSSClientBuilder;
+import com.aliyun.oss.OSSException;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
@@ -9,6 +12,7 @@ import com.sz.admin.system.pojo.dto.sysfile.SysFileListDTO;
 import com.sz.admin.system.pojo.po.SysFile;
 import com.sz.admin.system.pojo.po.table.SysFileTableDef;
 import com.sz.admin.system.service.SysFileService;
+import com.sz.configuration.AliOSSConfiguration;
 import com.sz.core.common.entity.PageResult;
 import com.sz.core.util.FileUploadUtils;
 import com.sz.core.util.PageUtils;
@@ -16,10 +20,13 @@ import com.sz.core.util.Utils;
 import com.sz.minio.MinioService;
 import com.sz.platform.enums.AdminResponseEnum;
 import io.minio.ObjectWriteResponse;
+import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,6 +45,9 @@ public class SysFileServiceImpl extends ServiceImpl<CommonFileMapper, SysFile> i
 
 
     private final MinioService minioService;
+
+    @Resource
+    private AliOSSConfiguration aliOSSConfiguration;
 
     /**
      * 文件列表
@@ -82,6 +92,30 @@ public class SysFileServiceImpl extends ServiceImpl<CommonFileMapper, SysFile> i
             e.printStackTrace();
             AdminResponseEnum.SYS_UPLOAD_FILE_ERROR.assertTrue(true);
         }
+        return fileUrl;
+    }
+
+    @Override
+    public String uploadFileToAli(MultipartFile file, String type) {
+        String fileUrl = "";
+        OSS ossClient = new OSSClientBuilder().build(aliOSSConfiguration.getEndpoint(), aliOSSConfiguration.getAccessKeyId(), aliOSSConfiguration.getAccessKeySecret());
+        try {
+            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+            InputStream inputStream = file.getInputStream();
+            ossClient.putObject(aliOSSConfiguration.getBucketName(), fileName, inputStream);
+            fileUrl = "https://" + aliOSSConfiguration.getBucketName() + "." + aliOSSConfiguration.getEndpoint() + "/" + fileName;
+            Map<String, String> map = new HashMap<>();
+            map.put("filename", fileName);
+            map.put("type", type);
+            map.put("url", fileUrl);
+            fileLog(file, map);
+        } catch (OSSException | IOException e) {
+            e.printStackTrace();
+            AdminResponseEnum.SYS_UPLOAD_FILE_ERROR.assertTrue(true);
+        } finally {
+            ossClient.shutdown();
+        }
+
         return fileUrl;
     }
 

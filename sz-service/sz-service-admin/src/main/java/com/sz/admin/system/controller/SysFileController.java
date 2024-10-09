@@ -41,4 +41,10 @@ public class SysFileController {
         return ApiResult.success(sysFileService.uploadFile(file, type));
     }
 
+    @Operation(summary = "上传文件到阿里云")
+    @PostMapping("/ali/upload")
+    public ApiResult uploadAli(@RequestParam MultipartFile file, @RequestParam(value = "type") String type) {
+        return ApiResult.success(sysFileService.uploadFileToAli(file, type));
+    }
+
 }

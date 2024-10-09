@@ -13,6 +13,7 @@
     <!-- 全局公用dependency版本管理 -->
     <properties>
         <flyway.version>10.12.0</flyway.version>
+        <alioss.version>3.18.1</alioss.version>
     </properties>
 
     <dependencies>
@@ -83,6 +84,12 @@
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
+        </dependency>
+        <!-- 阿里云OSS -->
+        <dependency>
+            <groupId>com.aliyun.oss</groupId>
+            <artifactId>aliyun-sdk-oss</artifactId>
+            <version>${alioss.version}</version>
         </dependency>
     </dependencies>
 </project>
