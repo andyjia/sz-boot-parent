@@ -35,8 +35,8 @@ public class SysFile implements Serializable {
     @Schema(description = "类型")
     private String type;
 
-    @Schema(description = "文件路径")
-    private String path;
+//    @Schema(description = "文件路径")
+//    private String path;
 
     @Schema(description = "文件大小")
     private String size;

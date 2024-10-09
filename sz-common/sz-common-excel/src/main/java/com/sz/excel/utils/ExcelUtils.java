@@ -44,7 +44,7 @@ public class ExcelUtils {
         map.put("type", "import");
         map.put("ext", ".excel");
         map.put("fromType", "1008003");
-        fileLogService.fileLog(null,map);
+        fileLogService.fileLog(listener.getExcelResult().getList(),map);
         return listener.getExcelResult();
     }
 

@@ -45,7 +45,7 @@ public class CommonController {
             map.put("type", "templates");
             map.put("ext", ".zip");
             map.put("fromType", "1008002");
-            fileLogService.fileLog(null,map);
+            fileLogService.fileLog(1,map);
         } catch (Exception e) {
             log.error("模板下载文件下载失败", e);
         }
