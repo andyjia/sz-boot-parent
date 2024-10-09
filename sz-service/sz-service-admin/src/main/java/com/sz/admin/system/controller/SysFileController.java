@@ -1,9 +1,11 @@
 package com.sz.admin.system.controller;
 
-import cn.dev33.satoken.annotation.SaIgnore;
+import cn.dev33.satoken.annotation.SaCheckPermission;
+
 import com.sz.admin.system.pojo.dto.sysfile.SysFileListDTO;
 import com.sz.admin.system.pojo.po.SysFile;
 import com.sz.admin.system.service.SysFileService;
+import com.sz.core.common.constant.GlobalConstant;
 import com.sz.core.common.entity.ApiPageResult;
 import com.sz.core.common.entity.ApiResult;
 import com.sz.core.common.entity.PageResult;
@@ -31,6 +33,7 @@ public class SysFileController {
 
     @Operation(summary = "列表查询")
     @GetMapping
+    @SaCheckPermission(value = "sys.file.query_table", orRole = GlobalConstant.SUPER_ROLE)
     public ApiPageResult<PageResult<SysFile>> list(SysFileListDTO dto) {
         return ApiPageResult.success(sysFileService.fileList(dto));
     }

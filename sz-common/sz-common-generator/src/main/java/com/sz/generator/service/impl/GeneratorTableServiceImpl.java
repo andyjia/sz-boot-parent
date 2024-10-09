@@ -6,6 +6,7 @@ import com.mybatisflex.core.update.UpdateChain;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import com.sz.core.common.entity.PageResult;
 import com.sz.core.common.enums.CommonResponseEnum;
+import com.sz.core.common.service.FileLogService;
 import com.sz.core.util.*;
 import com.sz.generator.core.AbstractCodeGenerationTemplate;
 import com.sz.generator.core.CodeModelBuilder;
@@ -41,6 +42,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -67,6 +69,8 @@ public class GeneratorTableServiceImpl extends ServiceImpl<GeneratorTableMapper,
     private final FreeMarkerConfigurer configurer;
 
     private final GeneratorProperties generatorProperties;
+
+    private final FileLogService fileLogService;
 
     @Override
     /**
@@ -273,6 +277,12 @@ public class GeneratorTableServiceImpl extends ServiceImpl<GeneratorTableMapper,
         } finally {
             zip.close();
         }
+        Map<String, String> map = new HashMap<>();
+        map.put("filename", "sz-admin.zip");
+        map.put("type", "generator");
+        map.put("ext", ".zip");
+        map.put("fromType", "1008002");
+        fileLogService.fileLog(outputStream.toByteArray().length,map);
         return outputStream.toByteArray();
     }
 

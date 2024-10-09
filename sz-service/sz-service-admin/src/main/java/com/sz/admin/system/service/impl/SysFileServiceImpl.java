@@ -9,15 +9,22 @@ import com.sz.admin.system.pojo.dto.sysfile.SysFileListDTO;
 import com.sz.admin.system.pojo.po.SysFile;
 import com.sz.admin.system.pojo.po.table.SysFileTableDef;
 import com.sz.admin.system.service.SysFileService;
+import com.sz.core.common.entity.LoginUser;
 import com.sz.core.common.entity.PageResult;
+import com.sz.core.common.service.FileLogService;
 import com.sz.core.util.FileUploadUtils;
 import com.sz.core.util.PageUtils;
 import com.sz.core.util.Utils;
 import com.sz.minio.MinioService;
 import com.sz.platform.enums.AdminResponseEnum;
+import com.sz.security.core.util.LoginUtils;
 import io.minio.ObjectWriteResponse;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
@@ -34,7 +41,7 @@ import java.util.Map;
  */
 @Service
 @RequiredArgsConstructor
-public class SysFileServiceImpl extends ServiceImpl<CommonFileMapper, SysFile> implements SysFileService {
+public class SysFileServiceImpl extends ServiceImpl<CommonFileMapper, SysFile> implements SysFileService, FileLogService {
 
 
     private final MinioService minioService;
@@ -77,7 +84,9 @@ public class SysFileServiceImpl extends ServiceImpl<CommonFileMapper, SysFile> i
             map.put("filename", filename);
             map.put("type", type);
             map.put("url", fileUrl);
-            fileLog(file, map);
+            map.put("ext", file.getContentType());
+            map.put("fromType", "1008001");
+            fileLog(file.getSize(), map);
         } catch (Exception e) {
             e.printStackTrace();
             AdminResponseEnum.SYS_UPLOAD_FILE_ERROR.assertTrue(true);
@@ -85,19 +94,21 @@ public class SysFileServiceImpl extends ServiceImpl<CommonFileMapper, SysFile> i
         return fileUrl;
     }
 
-    /**
-     * 文件日志
-     * 文件管理数据记录,收集管理追踪文件
-     *
-     * @param file     上传文件
-     * @param fileInfo 文件信息
-     */
-    private void fileLog(MultipartFile file, Map<String, String> fileInfo) {
+    @Override
+    public void fileLog(Object size, Map<String, String> fileInfo) {
+        LoginUser loginUser = LoginUtils.getLoginUser();
+        Long createId = 0L;
+        if (loginUser != null) {
+            createId = loginUser.getUserInfo().getId();
+        }
         SysFile sysFile = new SysFile();
         sysFile.setFilename(fileInfo.get("filename"));
         sysFile.setType(fileInfo.get("type"));
-        sysFile.setSize(String.valueOf(file.getSize()));
+        sysFile.setSize(String.valueOf(size));
         sysFile.setUrl(fileInfo.get("url"));
+        sysFile.setCreateId(createId);
+        sysFile.setExt(fileInfo.get("ext"));
+        sysFile.setFromType(fileInfo.get("fromType"));
         this.save(sysFile);
     }
 }

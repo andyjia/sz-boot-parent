@@ -3,6 +3,8 @@ package com.sz.excel.utils;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.write.builder.ExcelWriterSheetBuilder;
 import com.alibaba.excel.write.metadata.style.WriteCellStyle;
+import com.sz.core.common.service.FileLogService;
+import com.sz.core.util.SpringApplicationContextUtils;
 import com.sz.excel.convert.ExcelBigNumberConvert;
 import com.sz.excel.core.CellMergeStrategy;
 import com.sz.excel.core.DefaultExcelListener;
@@ -13,9 +15,7 @@ import com.sz.excel.strategy.DefaultColumnWidthStyleStrategy;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * @ClassName ExcelUtils
@@ -37,6 +37,14 @@ public class ExcelUtils {
     public static <T> ExcelResult<T> importExcel(InputStream is, Class<T> clazz, boolean isValidate) {
         DefaultExcelListener<T> listener = new DefaultExcelListener<>(isValidate);
         EasyExcel.read(is, clazz, listener).sheet().doRead();
+        // 添加
+        FileLogService fileLogService = SpringApplicationContextUtils.getBean(FileLogService.class);
+        Map<String, String> map = new HashMap<>();
+        map.put("filename", "文件导入");
+        map.put("type", "import");
+        map.put("ext", ".excel");
+        map.put("fromType", "1008003");
+        fileLogService.fileLog(null,map);
         return listener.getExcelResult();
     }
 
@@ -72,6 +80,16 @@ public class ExcelUtils {
         // 添加下拉框操作
         builder.registerWriteHandler(new ExcelDownHandler());
         builder.doWrite(list);
+
+        // 添加文件信息导出日志
+        FileLogService fileLogService = SpringApplicationContextUtils.getBean(FileLogService.class);
+        Map<String, String> map = new HashMap<>();
+        map.put("filename",  sheetName);
+        map.put("type", "export");
+        map.put("ext", ".excel");
+        map.put("fromType", "1008004");
+
+        fileLogService.fileLog(list.size(),map);
     }
 
     /**

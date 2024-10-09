@@ -47,4 +47,13 @@ public class SysFile implements Serializable {
     @Schema(description = "创建时间")
     private LocalDateTime createTime;
 
+    @Schema(description = "创建人")
+    private Long createId;
+
+    @Schema(description = "扩展名")
+    private String ext;
+
+    @Schema(description = "来源（上传、导入、导出）")
+    private String fromType;
+
 }

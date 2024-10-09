@@ -1,5 +1,6 @@
 package com.sz.admin.system.controller;
 
+import com.sz.core.common.service.FileLogService;
 import com.sz.core.util.FileUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -11,6 +12,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 通用controller
@@ -29,11 +33,19 @@ public class CommonController {
 
     private final ResourceLoader resourceLoader;
 
+    private final FileLogService fileLogService;
+
     @Operation(summary ="模板下载")
     @GetMapping("/download/templates")
     public void fileDownload(@RequestParam("templateName") String templateName, HttpServletResponse response) {
         try {
             FileUtils.downloadTemplateFile(resourceLoader, response, templateName);
+            Map<String, String> map = new HashMap<>();
+            map.put("filename", templateName);
+            map.put("type", "templates");
+            map.put("ext", ".zip");
+            map.put("fromType", "1008002");
+            fileLogService.fileLog(null,map);
         } catch (Exception e) {
             log.error("模板下载文件下载失败", e);
         }
